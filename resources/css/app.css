@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* --- CUSTOMIZAÇÃO DO FULLCALENDAR --- */
+
+/* 1. Garante o cursor de "mãozinha" em qualquer espaço de tempo vazio */
+.fc .fc-timegrid-slot {
+    cursor: pointer !important;
+}
+
+/* 2. Visual de "arrastar e soltar" para os agendamentos já marcados */
+.fc .fc-event {
+    cursor: grab !important;
+}
+.fc .fc-event:active {
+    cursor: grabbing !important;
+}
+
+.my-btn {
+    all: unset;
+    display: block;
+}
