@@ -134,22 +134,34 @@ class AppointmentController extends Controller
         return redirect()->back();
     }
 
-    public function destroy(Appointment $appointment)
+    public function destroy(Request $request, Appointment $appointment)
     {
+        // 1. Recebe a justificativa do frontend (se não vier nada, usa um padrão)
+        $reason = $request->input('reason', 'Motivo não informado pelo estabelecimento.');
+
+        // 2. Muda o status para cancelado
         $appointment->update(['status' => 'canceled']);
 
+        // 3. Prepara a mensagem do WhatsApp avisando o cliente!
         $tenant = auth()->user()->tenant;
-        $rawMessage = $tenant->cancellation_message ?? "Seu agendamento foi cancelado.";
         
+        // Usamos uma mensagem padrão caso o salão não tenha configurado uma
+        $rawMessage = $tenant->cancellation_message ?? "Olá {nome_cliente}! Seu agendamento na {nome_empresa} precisou ser cancelado.\n\n*Motivo:* {justificativa}";
+        
+        // Cria o link público de agendamento do salão
+        $bookingLink = url('/agendar/' . $tenant->slug); 
+        // Se você não usa slug, mude para: url('/agendar/' . $tenant->id)
+
         $message = str_replace(
-            ['{nome_cliente}', '{nome_empresa}'],
-            [$appointment->client_name, $tenant->name],
+            ['{nome_cliente}', '{nome_empresa}', '{justificativa}', '{link}'],
+            [$appointment->client_name, $tenant->name, $reason, $bookingLink],
             $rawMessage
         );
 
-        $evolution = new EvolutionApiService();
+        // Disparo Real pelo Evolution API:
+        $evolution = new \App\Services\EvolutionApiService();
         $evolution->sendText($appointment->client_phone, $message);
 
-        return redirect()->back()->with('success', 'Agendamento cancelado com sucesso e horário liberado!');
+        return redirect()->back()->with('success', 'Agendamento cancelado com sucesso e cliente avisado!');
     }
 }

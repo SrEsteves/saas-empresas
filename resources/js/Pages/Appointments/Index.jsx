@@ -25,8 +25,11 @@ export default function Index({ appointments, services }) {
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
 
-    // Estado para a Modal de CONFIRMAÇÃO DE CANCELAMENTO (Sem alert nativo!)
+    // Estado para a Modal de CONFIRMAÇÃO DE CANCELAMENTO
     const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
+    
+    // NOVO ESTADO: Guarda o motivo do cancelamento
+    const [cancelReason, setCancelReason] = useState('');
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         service_id: '',
@@ -41,9 +44,9 @@ export default function Index({ appointments, services }) {
         reset();
     };
 
+    // 🛠️ CORREÇÃO 1: Paramos de forçar o "null" aqui para não perder os dados
     const closeDetailsModal = () => {
         setIsDetailsModalOpen(false);
-        setTimeout(() => setSelectedAppointment(null), 200); // Espera a animação fechar
     };
 
     const submit = (e) => {
@@ -64,7 +67,7 @@ export default function Index({ appointments, services }) {
         }, {
             preserveScroll: true,
             onError: (err) => {
-                alert(err.start_time || 'Erro ao mover agendamento.'); // Podemos melhorar esse alert de erro no futuro também!
+                alert(err.start_time || 'Erro ao mover agendamento.');
                 info.revert(); 
             }
         });
@@ -78,17 +81,22 @@ export default function Index({ appointments, services }) {
         }
     };
 
-    // Abre a tela bonitona de confirmação
+    // 🛠️ CORREÇÃO 2: Esconde a modal de trás quando for cancelar
     const promptCancelAppointment = () => {
+        setCancelReason(''); 
+        setIsDetailsModalOpen(false); // Fica mais limpo visualmente
         setIsConfirmCancelOpen(true);
     };
 
-    // Executa a exclusão de fato
+    // 🛠️ CORREÇÃO 3: Trava de segurança e limpeza no momento certo
     const executeCancel = () => {
+        if (!selectedAppointment) return; // Evita o erro de variável null
+
         router.delete(route('appointments.destroy', selectedAppointment.id), {
+            data: { reason: cancelReason }, 
             onSuccess: () => {
                 setIsConfirmCancelOpen(false);
-                closeDetailsModal();
+                setSelectedAppointment(null); // Só limpa DEPOIS que apagou com sucesso
             }
         });
     };
@@ -220,7 +228,7 @@ export default function Index({ appointments, services }) {
 
                         <div className="flex items-center justify-between mt-6">
                             <button 
-                                onClick={promptCancelAppointment} // Agora chama a nova função!
+                                onClick={promptCancelAppointment} 
                                 className="text-red-600 hover:text-red-800 text-sm font-semibold transition"
                             >
                                 Cancelar Agendamento
@@ -231,7 +239,7 @@ export default function Index({ appointments, services }) {
                 )}
             </Modal>
 
-            {/* MODAL 3: CONFIRMAÇÃO ELEGANTE DE CANCELAMENTO */}
+            {/* MODAL 3: CONFIRMAÇÃO ELEGANTE DE CANCELAMENTO COM JUSTIFICATIVA */}
             <Modal show={isConfirmCancelOpen} onClose={() => setIsConfirmCancelOpen(false)} maxWidth="sm">
                 <div className="p-6 text-center">
                     <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
@@ -242,10 +250,21 @@ export default function Index({ appointments, services }) {
 
                     <h3 className="text-lg font-bold text-gray-900 mb-2">Cancelar Agendamento?</h3>
                     
-                    <p className="text-sm text-gray-500 mb-6">
-                        Tem certeza que deseja cancelar o horário de <strong className="text-gray-700">{selectedAppointment?.client_name}</strong>? <br />
-                        O horário ficará livre e o cliente receberá um aviso automático no WhatsApp.
+                    <p className="text-sm text-gray-500 mb-4">
+                        Tem certeza que deseja cancelar o horário de <strong className="text-gray-700">{selectedAppointment?.client_name}</strong>?
                     </p>
+
+                    <div className="text-left mb-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Motivo do Cancelamento (Opcional)</label>
+                        <textarea
+                            className="w-full border-gray-300 focus:border-red-500 focus:ring-red-500 rounded-md shadow-sm text-sm"
+                            rows="3"
+                            placeholder="Ex: A profissional precisou sair por uma emergência."
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                        ></textarea>
+                        <p className="text-xs text-gray-500 mt-1">Este motivo será enviado ao cliente no WhatsApp.</p>
+                    </div>
 
                     <div className="flex justify-center gap-3">
                         <button onClick={() => setIsConfirmCancelOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition w-full">
