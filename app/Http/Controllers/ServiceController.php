@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Service;
+use App\Models\Product;
 use Inertia\Inertia;
 
 class ServiceController extends Controller
@@ -14,7 +15,8 @@ class ServiceController extends Controller
         $services = Service::latest()->get();
 
         return Inertia::render('Services/Index', [
-            'services' => $services
+            'services' => $services,
+            'products' => Product::orderBy('name')->get(),
         ]);
     }
 
@@ -24,11 +26,22 @@ class ServiceController extends Controller
             'name' => 'required|string|max:255',
             'duration_minutes' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
+            'consumed_products' => 'nullable|array',
+            'consumed_products.*.id' => 'required|exists:products,id',
+            'consumed_products.*.quantity' => 'required|numeric|min:0.01'
         ]);
 
         $validated['is_active'] = true; // Todo serviço novo nasce ativo
 
-        Service::create($validated);
+        $service = Service::create($validated);
+
+        if (!empty($request->consumed_products)) {
+            $syncData = [];
+            foreach ($request->consumed_products as $item) {
+                $syncData[$item['id']] = ['quantity' => $item['quantity']];
+            }
+            $service->products()->sync($syncData);
+        }
 
         return redirect()->back()->with('success', 'Serviço criado com sucesso!');
     }
@@ -40,11 +53,26 @@ class ServiceController extends Controller
             'duration_minutes' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
+            'consumed_products' => 'nullable|array',
+            'consumed_products.*.id' => 'required|exists:products,id',
+            'consumed_products.*.quantity' => 'required|numeric|min:0.01',
         ]);
 
         $service->update($validated);
 
-        return redirect()->back()->with('success', 'Serviço atualizado!');
+        // Atualiza a receita no banco
+        if (isset($validated['consumed_products'])) {
+            $syncData = [];
+            foreach ($validated['consumed_products'] as $item) {
+                $syncData[$item['id']] = ['quantity' => $item['quantity']];
+            }
+            $service->products()->sync($syncData);
+        } else {
+            // Se ele apagar todos os produtos da lista, limpamos o banco também
+            $service->products()->detach(); 
+        }
+
+        return redirect()->back()->with('success', 'Serviço e receita atualizados!');
     }
 
     public function destroy(Service $service)

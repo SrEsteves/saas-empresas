@@ -8,6 +8,10 @@ use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,9 +36,9 @@ Route::get('/', function () {
     //WhatsBot
     Route::post('/webhook/whatsapp/{tenant}', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -52,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
     Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
     Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
+    Route::post('/appointments/{appointment}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
 
     //WHATSAPP
     Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp.index');
@@ -66,6 +71,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profissionais', [EmployeeController::class, 'index'])->name('employees.index');
     Route::post('/profissionais', [EmployeeController::class, 'store'])->name('employees.store');
     Route::delete('/profissionais/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+
+    //PRODUTOS
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::post('/products/{product}/adjust', [ProductController::class, 'adjustStock'])->name('products.adjust');
+
+    //CATEGORIAS
+    Route::resource('categories', CategoryController::class)->only(['index', 'store', 'destroy']);
+
+    //MOVIMENTAÇÕES DE ESTOQUE
+    Route::get('/stock/movements', [StockMovementController::class, 'index'])->name('stock.movements');
 
     //NOTIFICATION
     Route::post('/notificacoes/{id}/ler', function (\Illuminate\Http\Request $request, $id) {

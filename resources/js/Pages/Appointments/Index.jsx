@@ -18,17 +18,10 @@ export default function Index({ appointments, services }) {
     const { props } = usePage();
     const flash = props.flash || {};
 
-    // Estados para a Modal de NOVO agendamento
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    // Estados para a Modal de DETALHES
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
-
-    // Estado para a Modal de CONFIRMAÇÃO DE CANCELAMENTO
     const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
-    
-    // NOVO ESTADO: Guarda o motivo do cancelamento
     const [cancelReason, setCancelReason] = useState('');
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
@@ -44,7 +37,6 @@ export default function Index({ appointments, services }) {
         reset();
     };
 
-    // 🛠️ CORREÇÃO 1: Paramos de forçar o "null" aqui para não perder os dados
     const closeDetailsModal = () => {
         setIsDetailsModalOpen(false);
     };
@@ -81,22 +73,33 @@ export default function Index({ appointments, services }) {
         }
     };
 
-    // 🛠️ CORREÇÃO 2: Esconde a modal de trás quando for cancelar
     const promptCancelAppointment = () => {
         setCancelReason(''); 
-        setIsDetailsModalOpen(false); // Fica mais limpo visualmente
+        setIsDetailsModalOpen(false); 
         setIsConfirmCancelOpen(true);
     };
 
-    // 🛠️ CORREÇÃO 3: Trava de segurança e limpeza no momento certo
     const executeCancel = () => {
-        if (!selectedAppointment) return; // Evita o erro de variável null
+        if (!selectedAppointment) return;
 
         router.delete(route('appointments.destroy', selectedAppointment.id), {
             data: { reason: cancelReason }, 
             onSuccess: () => {
                 setIsConfirmCancelOpen(false);
-                setSelectedAppointment(null); // Só limpa DEPOIS que apagou com sucesso
+                setSelectedAppointment(null); 
+            }
+        });
+    };
+
+    // 🔥 NOVO: Função que dispara a conclusão do serviço e a baixa do estoque!
+    const executeComplete = () => {
+        if (!selectedAppointment) return;
+
+        router.post(route('appointments.complete', selectedAppointment.id), {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsDetailsModalOpen(false);
+                setSelectedAppointment(null);
             }
         });
     };
@@ -118,7 +121,7 @@ export default function Index({ appointments, services }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                     
                     {flash?.success && (
-                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
                             {flash.success}
                         </div>
                     )}
@@ -226,6 +229,7 @@ export default function Index({ appointments, services }) {
                             </div>
                         </div>
 
+                        {/* 🔥 NOVO: Botões reorganizados com a opção de Concluir Serviço */}
                         <div className="flex items-center justify-between mt-6">
                             <button 
                                 onClick={promptCancelAppointment} 
@@ -233,13 +237,22 @@ export default function Index({ appointments, services }) {
                             >
                                 Cancelar Agendamento
                             </button>
-                            <SecondaryButton onClick={closeDetailsModal}>Fechar</SecondaryButton>
+                            
+                            <div className="flex gap-3">
+                                <SecondaryButton onClick={closeDetailsModal}>Voltar</SecondaryButton>
+                                <button 
+                                    onClick={executeComplete}
+                                    className="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                >
+                                    Concluir Serviço
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
             </Modal>
 
-            {/* MODAL 3: CONFIRMAÇÃO ELEGANTE DE CANCELAMENTO COM JUSTIFICATIVA */}
+            {/* MODAL 3: CONFIRMAÇÃO ELEGANTE DE CANCELAMENTO */}
             <Modal show={isConfirmCancelOpen} onClose={() => setIsConfirmCancelOpen(false)} maxWidth="sm">
                 <div className="p-6 text-center">
                     <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">

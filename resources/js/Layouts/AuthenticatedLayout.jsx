@@ -33,24 +33,57 @@ export default function AuthenticatedLayout({ header, children }) {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                {/* DASHBOARD - LINK DIRETO */}
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
                                 </NavLink>
-                                <NavLink href={route('services.index')} active={route().current('services.index')}>
-                                    Serviços
-                                </NavLink>
-                                <NavLink href={route('employees.index')} active={route().current('employees.index')}>
-                                    Colaboradores
-                                </NavLink>
-                                <NavLink href={route('appointments.index')} active={route().current('appointments.index')}>
-                                    Agenda
-                                </NavLink>
-                                <NavLink href={route('whatsapp.index')} active={route().current('whatsapp.index')}>
-                                    WhatsApp & Bot
-                                </NavLink>
-                                <NavLink href={route('settings.edit')} active={route().current('settings.edit')}>
-                                    Configurações
-                                </NavLink>
+
+                                {/* DROPDOWN AGENDAMENTO - PILAR 1 */}
+                                <div className="inline-flex items-center px-1 pt-1">
+                                    <Dropdown>
+                                        <Dropdown.Trigger>
+                                            <button
+                                                type="button"
+                                                className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md transition ease-in-out duration-150 ${
+                                                    route().current('appointments.*') || route().current('services.*') || route().current('employees.*') || route().current('whatsapp.*')
+                                                    ? 'text-indigo-600 font-bold' 
+                                                    : 'text-gray-500 hover:text-gray-700'
+                                                }`}
+                                            >
+                                                Agendamento
+                                                <svg className="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </Dropdown.Trigger>
+
+                                        <Dropdown.Content>
+                                            <Dropdown.Link href={route('appointments.index')}>Agenda</Dropdown.Link>
+                                            <Dropdown.Link href={route('services.index')}>Serviços</Dropdown.Link>
+                                            <Dropdown.Link href={route('employees.index')}>Colaboradores</Dropdown.Link>
+                                            <Dropdown.Link href={route('whatsapp.index')}>WhatsApp & Bot</Dropdown.Link>
+                                            <Dropdown.Link href={route('settings.edit')}>Configurações</Dropdown.Link>
+                                        </Dropdown.Content>
+                                    </Dropdown>
+                                </div>
+
+                                {/* DROPDOWN ESTOQUE - PILAR 2 */}
+                                <div className="inline-flex items-center px-1 pt-1">
+                                    <Dropdown>
+                                        <Dropdown.Trigger>
+                                            <button type="button" className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md transition ${route().current('products.*') || route().current('categories.*') ? 'text-indigo-600 font-bold' : 'text-gray-500 hover:text-gray-700'}`}>
+                                                Estoque
+                                                <svg className="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                                            </button>
+                                        </Dropdown.Trigger>
+                                        <Dropdown.Content>
+                                            <Dropdown.Link href={route('products.index')}>Produtos</Dropdown.Link>
+                                            <Dropdown.Link href={route('categories.index')}>Categorias</Dropdown.Link>
+                                            <Dropdown.Link href={route('stock.movements')}>Extrato / Auditoria</Dropdown.Link>
+                                        </Dropdown.Content>
+                                    </Dropdown>
+                                </div>
+
                             </div>
                         </div>
 
@@ -210,11 +243,21 @@ export default function AuthenticatedLayout({ header, children }) {
                     }
                 >
                     <div className="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
-                        >
+                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
+                        </ResponsiveNavLink>
+                        
+                        {/* Agrupamento visual no mobile */}
+                        <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase">Agendamento</div>
+                        <ResponsiveNavLink href={route('appointments.index')} active={route().current('appointments.index')}>Agenda</ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('services.index')} active={route().current('services.index')}>Serviços</ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('employees.index')} active={route().current('employees.index')}>Colaboradores</ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('whatsapp.index')} active={route().current('whatsapp.index')}>WhatsApp & Bot</ResponsiveNavLink>
+
+                        <div className="border-t border-gray-100 my-1"></div>
+                        
+                        <ResponsiveNavLink href={route('products.index')} active={route().current('products.index')}>
+                            Estoque
                         </ResponsiveNavLink>
                     </div>
 

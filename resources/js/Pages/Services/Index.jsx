@@ -6,7 +6,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 
-export default function Index({ services }) {
+export default function Index({ products, services }) {
     const { props } = usePage();
     const flash = props.flash || {};
 
@@ -15,7 +15,28 @@ export default function Index({ services }) {
         name: '',
         duration_minutes: '',
         price: '',
+        is_active: true,
+        consumed_products: [],
     });
+
+    // Adiciona uma linha em branco na receita
+    const addProductToRecipe = () => {
+        // O (data.consumed_products || []) é o cinto de segurança!
+        const currentProducts = data.consumed_products || []; 
+        setData('consumed_products', [...currentProducts, { id: '', quantity: '' }]);
+    };
+
+    // Remove uma linha da receita
+    const removeProductFromRecipe = (indexToRemove) => {
+        setData('consumed_products', data.consumed_products.filter((_, index) => index !== indexToRemove));
+    };
+
+    // Atualiza o select do produto ou o input de quantidade
+    const updateRecipeItem = (index, field, value) => {
+        const newProducts = [...data.consumed_products];
+        newProducts[index][field] = value;
+        setData('consumed_products', newProducts);
+    };
 
     // 2. Estados de EDIÇÃO
     const [editingService, setEditingService] = useState(null);
@@ -123,6 +144,66 @@ export default function Index({ services }) {
                                     <InputError className="mt-2" message={errors.price} />
                                 </div>
                             </div>
+
+                            {/* --- SEÇÃO DE INSUMOS (RECEITA) --- */}
+                            <div className="mt-6 border-t border-gray-200 pt-4">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-md font-medium text-gray-900">Insumos Consumidos (Estoque)</h3>
+                                    <button 
+                                        type="button" 
+                                        onClick={addProductToRecipe}
+                                        className="text-sm text-indigo-600 hover:text-indigo-900 font-bold"
+                                    >
+                                        + Adicionar Produto
+                                    </button>
+                                </div>
+
+                                {/* O ponto de interrogação ?. evita a tela branca se a variável estiver vazia */}
+                                {data.consumed_products?.map((item, index) => (
+                                    <div key={index} className="flex gap-3 mb-3 items-end">
+                                        <div className="flex-1">
+                                            <InputLabel value="Produto" />
+                                            <select 
+                                                className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                                value={item.id}
+                                                onChange={(e) => updateRecipeItem(index, 'id', e.target.value)}
+                                                required
+                                            >
+                                                <option value="">Selecione...</option>
+                                                {products?.map(p => (
+                                                    <option key={p.id} value={p.id}>{p.name} (Estoque: {p.current_stock})</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="w-32">
+                                            <InputLabel value="Quantidade" />
+                                            <TextInput 
+                                                type="number" 
+                                                step="0.01" 
+                                                className="mt-1 block w-full" 
+                                                value={item.quantity} 
+                                                onChange={(e) => updateRecipeItem(index, 'quantity', e.target.value)} 
+                                                placeholder="Ex: 1.5"
+                                                required 
+                                            />
+                                        </div>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => removeProductFromRecipe(index)}
+                                            className="mb-2 text-red-500 hover:text-red-700 p-2"
+                                            title="Remover"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </button>
+                                    </div>
+                                ))}
+                                
+                                {/* Outro cinto de segurança aqui no length */}
+                                {(!data.consumed_products || data.consumed_products.length === 0) && (
+                                    <p className="text-sm text-gray-500 italic">Nenhum produto vinculado. Este serviço não baixará o estoque.</p>
+                                )}
+                            </div>
+                            {/* --- FIM DA SEÇÃO DE INSUMOS --- */}
 
                             <div className="flex items-center gap-4">
                                 <PrimaryButton disabled={processing}>Salvar Serviço</PrimaryButton>

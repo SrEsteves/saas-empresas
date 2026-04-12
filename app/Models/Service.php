@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Traits\BelongsToTenant;
 
 class Service extends Model
@@ -19,5 +20,9 @@ class Service extends Model
     public function employees()
     {
         return $this->belongsToMany(Employee::class);
+    }
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class)->withPivot('quantity')->withTimestamps();
     }
 }

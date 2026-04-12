@@ -8,6 +8,8 @@ use App\Models\Service;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use App\Services\EvolutionApiService;
+use App\Models\StockMovement;
+use Illuminate\Support\Facades\DB;
 
 class AppointmentController extends Controller
 {
@@ -163,5 +165,42 @@ class AppointmentController extends Controller
         $evolution->sendText($appointment->client_phone, $message);
 
         return redirect()->back()->with('success', 'Agendamento cancelado com sucesso e cliente avisado!');
+    }
+
+    public function complete(Appointment $appointment)
+    {
+        // 1. Evita processar algo que já foi concluído ou cancelado
+        if ($appointment->status !== 'confirmed') {
+            return back()->withErrors(['error' => 'Apenas agendamentos confirmados podem ser concluídos.']);
+        }
+
+        // 2. Carregamos o serviço com a "receita" de produtos (Pilar 2)
+        $service = $appointment->service()->with('products')->first();
+
+        DB::transaction(function () use ($appointment, $service) {
+            // 3. Muda o status para concluído
+            $appointment->update(['status' => 'completed']);
+
+            // 4. Se o serviço tiver produtos vinculados, damos a baixa
+            if ($service && $service->products->isNotEmpty()) {
+                foreach ($service->products as $product) {
+                    $quantityToConsume = $product->pivot->quantity;
+
+                    // Registra a movimentação de saída
+                    StockMovement::create([
+                        'tenant_id'  => auth()->user()->tenant_id,
+                        'product_id' => $product->id,
+                        'quantity'   => -$quantityToConsume,
+                        'type'       => 'out',
+                        'reason'     => "Consumo automático: Agendamento #{$appointment->id} ({$service->name})"
+                    ]);
+
+                    // Decrementa o estoque real
+                    $product->decrement('current_stock', $quantityToConsume);
+                }
+            }
+        });
+
+        return redirect()->back()->with('success', 'Agendamento concluído e estoque atualizado com sucesso!');
     }
 }
