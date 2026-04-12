@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Appointment;
 use App\Models\StockMovement;
-use App\Models\Employee;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -16,11 +15,28 @@ class DashboardController extends Controller
     {
         $tenantId = auth()->user()->tenant_id;
         
-        // Filtro de data (Padrão: últimos 30 dias)
-        $startDate = $request->input('start_date', Carbon::now()->subDays(30)->toDateString());
+        // Se não vier data, pega do início do mês até hoje (mais lógico para negócios)
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', Carbon::now()->toDateString());
 
-        // 1. Ranking de Funcionários (Quem produziu mais $)
+        // Base query para os agendamentos concluídos no período
+        $appointmentsQuery = DB::table('appointments')
+            ->join('services', 'appointments.service_id', '=', 'services.id')
+            ->where('appointments.tenant_id', $tenantId)
+            ->where('appointments.status', 'completed')
+            ->whereBetween('appointments.start_time', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+
+        // 1. Métricas Principais (Faturamento, Qtd e Ticket Médio)
+        $totalAppointments = $appointmentsQuery->count('appointments.id');
+        $totalRevenue = (float) $appointmentsQuery->sum('services.price');
+        $averageTicket = $totalAppointments > 0 ? ($totalRevenue / $totalAppointments) : 0;
+
+        // 2. Alerta de Estoque Crítico
+        $criticalStockCount = Product::where('tenant_id', $tenantId)
+            ->whereColumn('current_stock', '<=', 'minimum_stock')
+            ->count();
+
+        // 3. Ranking de Equipe
         $topEmployees = DB::table('appointments')
             ->join('services', 'appointments.service_id', '=', 'services.id')
             ->join('employees', 'appointments.employee_id', '=', 'employees.id')
@@ -33,30 +49,25 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 2. Ranking de Produtos (O que saiu mais no automático)
+        // 4. Ranking de Insumos Mais Consumidos
         $topProducts = StockMovement::with('product')
             ->where('tenant_id', $tenantId)
             ->where('type', 'out')
-            ->whereBetween('created_at', [$startDate, $endDate])
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->select('product_id', DB::raw('SUM(ABS(quantity)) as total_consumed'))
             ->groupBy('product_id')
             ->orderByDesc('total_consumed')
             ->take(5)
             ->get();
 
-        // 3. Faturamento Total no período
-        $totalRevenue = DB::table('appointments')
-            ->join('services', 'appointments.service_id', '=', 'services.id')
-            ->where('appointments.tenant_id', $tenantId)
-            ->where('appointments.status', 'completed')
-            ->whereBetween('appointments.start_time', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-            ->sum('services.price');
-
         return Inertia::render('Dashboard', [
             'stats' => [
+                'totalRevenue' => $totalRevenue,
+                'totalAppointments' => $totalAppointments,
+                'averageTicket' => $averageTicket,
+                'criticalStockCount' => $criticalStockCount,
                 'topEmployees' => $topEmployees,
                 'topProducts' => $topProducts,
-                'totalRevenue' => number_format($totalRevenue, 2, ',', '.'),
                 'filters' => [
                     'start_date' => $startDate,
                     'end_date' => $endDate,
