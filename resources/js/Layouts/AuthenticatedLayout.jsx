@@ -182,7 +182,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             </svg>
                         </button>
                     </Dropdown.Trigger>
-                    <Dropdown.Content>
+                    <Dropdown.Content contentClasses="absolute bottom-full left-full mb-2 w-full min-w-[200px] bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
                         <Dropdown.Link href={route('profile.edit')}>Perfil</Dropdown.Link>
                         <Dropdown.Link href={route('logout')} method="post" as="button">Sair</Dropdown.Link>
                     </Dropdown.Content>
