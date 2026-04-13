@@ -24,11 +24,20 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title="Criar Conta" />
 
-            <form onSubmit={submit}>
+            <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900">Criar sua conta</h2>
+                    <p className="mt-2 text-sm text-gray-600">
+                        Comece a gerenciar seu negócio hoje mesmo
+                    </p>
+                </div>
+            </div>
+
+            <form onSubmit={submit} className="mt-6 space-y-6">
                 <div>
-                    <InputLabel htmlFor="tenant_name" value="Nome do seu Negócio (Ex: Barbearia XPTO)" />
+                    <InputLabel htmlFor="tenant_name" value="Nome do seu Negócio" />
 
                     <TextInput
                         id="tenant_name"
@@ -39,13 +48,14 @@ export default function Register() {
                         isFocused={true}
                         onChange={(e) => setData('tenant_name', e.target.value)}
                         required
+                        placeholder="Ex: Barbearia XPTO"
                     />
 
                     <InputError message={errors.tenant_name} className="mt-2" />
                 </div>
-                
+
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
+                    <InputLabel htmlFor="name" value="Seu Nome" />
 
                     <TextInput
                         id="name"
@@ -53,16 +63,16 @@ export default function Register() {
                         value={data.name}
                         className="mt-1 block w-full"
                         autoComplete="name"
-                        isFocused={true}
                         onChange={(e) => setData('name', e.target.value)}
                         required
+                        placeholder="João Silva"
                     />
 
                     <InputError message={errors.name} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                <div>
+                    <InputLabel htmlFor="email" value="E-mail" />
 
                     <TextInput
                         id="email"
@@ -73,13 +83,14 @@ export default function Register() {
                         autoComplete="username"
                         onChange={(e) => setData('email', e.target.value)}
                         required
+                        placeholder="joao@exemplo.com"
                     />
 
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                <div>
+                    <InputLabel htmlFor="password" value="Senha" />
 
                     <TextInput
                         id="password"
@@ -90,15 +101,16 @@ export default function Register() {
                         autoComplete="new-password"
                         onChange={(e) => setData('password', e.target.value)}
                         required
+                        placeholder="••••••••"
                     />
 
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
+                <div>
                     <InputLabel
                         htmlFor="password_confirmation"
-                        value="Confirm Password"
+                        value="Confirmar Senha"
                     />
 
                     <TextInput
@@ -112,6 +124,7 @@ export default function Register() {
                             setData('password_confirmation', e.target.value)
                         }
                         required
+                        placeholder="••••••••"
                     />
 
                     <InputError
@@ -120,17 +133,22 @@ export default function Register() {
                     />
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
-                    <Link
-                        href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                        Already registered?
-                    </Link>
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
+                <div>
+                    <PrimaryButton className="w-full justify-center" disabled={processing}>
+                        {processing ? 'Criando conta...' : 'Criar Conta'}
                     </PrimaryButton>
+                </div>
+
+                <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                        Já tem uma conta?{' '}
+                        <Link
+                            href={route('login')}
+                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                            Entrar
+                        </Link>
+                    </p>
                 </div>
             </form>
         </GuestLayout>

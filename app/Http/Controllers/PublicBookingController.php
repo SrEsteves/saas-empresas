@@ -25,7 +25,6 @@ class PublicBookingController extends Controller
         ]);
     }
 
-    // 🌟 NOVA ROTA: Busca quem faz o serviço escolhido
     public function getEmployeesForService(Request $request, Tenant $tenant)
     {
         $request->validate(['service_id' => 'required|exists:services,id']);
@@ -81,7 +80,6 @@ class PublicBookingController extends Controller
         $startOfDay = \Carbon\Carbon::parse($date)->setTime((int)$startHour, (int)$startMinute);
         $endOfDay = \Carbon\Carbon::parse($date)->setTime((int)$endHour, (int)$endMinute);
 
-        // 4. 🌟 MÁGICA: Busca os agendamentos APENAS daquele profissional
         $appointments = Appointment::withoutGlobalScope('tenant_isolation')
             ->where('tenant_id', $tenant->id)
             ->where('employee_id', $employee->id) 
@@ -127,6 +125,11 @@ class PublicBookingController extends Controller
         
         $startTime = Carbon::parse($request->start_time);
         $endTime = $startTime->copy()->addMinutes($service->duration_minutes);
+
+        //enviar uma notificação para o sistema avisando que um cliente pediu atendimento humano no WhatsApp
+        foreach ($tenant->users as $user) {
+            $user->notify(new \App\Notifications\HumanRequestedNotification($request->client_phone));
+        }
 
         Appointment::forceCreate([
             'tenant_id' => $tenant->id,

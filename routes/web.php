@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     // PROFISSIONAIS AQUI
     Route::get('/profissionais', [EmployeeController::class, 'index'])->name('employees.index');
     Route::post('/profissionais', [EmployeeController::class, 'store'])->name('employees.store');
+    Route::put('/profissionais/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::delete('/profissionais/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 
     //PRODUTOS

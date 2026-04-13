@@ -58,7 +58,7 @@ class ServiceController extends Controller
             'consumed_products.*.quantity' => 'required|numeric|min:0.01',
         ]);
 
-        $service->update($validated);
+        $service->update($validated);        
 
         // Atualiza a receita no banco
         if (isset($validated['consumed_products'])) {

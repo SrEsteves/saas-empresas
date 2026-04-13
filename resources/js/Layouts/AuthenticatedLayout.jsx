@@ -288,7 +288,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </header>
 
                 {/* CONTEÚDO DA PÁGINA */}
-                <main className="flex-1">
+                <main className="flex-1 bg-gray-100">
                     {children}
                 </main>
             </div>

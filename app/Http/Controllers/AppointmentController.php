@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Services\EvolutionApiService;
 use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\VarDumper\VarDumper;
 
 class AppointmentController extends Controller
 {

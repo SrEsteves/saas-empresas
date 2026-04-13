@@ -51,6 +51,29 @@ class EmployeeController extends Controller
         return redirect()->back();
     }
 
+    public function update(Request $request, Employee $employee)
+    {
+        // Garante que só atualiza se for da própria empresa
+        if ($employee->tenant_id !== auth()->user()->tenant_id) {
+            return redirect()->back()->withErrors(['message' => 'Acesso negado.']);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'service_ids' => 'required|array|min:1',
+            'service_ids.*' => 'exists:services,id'
+        ]);
+
+        $employee->update([
+            'name' => $request->name,
+        ]);
+
+        // Sincroniza os serviços selecionados (remove os antigos e adiciona os novos)
+        $employee->services()->sync($request->service_ids);
+
+        return redirect()->back();
+    }
+
     public function destroy(Employee $employee)
     {
         // Garante que só deleta se for da própria empresa

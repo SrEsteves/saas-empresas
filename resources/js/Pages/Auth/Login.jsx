@@ -23,17 +23,26 @@ export default function Login({ status, canResetPassword }) {
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Entrar" />
+
+            <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900">Entrar na sua conta</h2>
+                    <p className="mt-2 text-sm text-gray-600">
+                        Acesse o painel de controle do seu negócio
+                    </p>
+                </div>
+            </div>
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="mt-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm">
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="mt-6 space-y-6">
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value="E-mail" />
 
                     <TextInput
                         id="email"
@@ -44,13 +53,14 @@ export default function Login({ status, canResetPassword }) {
                         autoComplete="username"
                         isFocused={true}
                         onChange={(e) => setData('email', e.target.value)}
+                        required
                     />
 
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                <div>
+                    <InputLabel htmlFor="password" value="Senha" />
 
                     <TextInput
                         id="password"
@@ -60,13 +70,14 @@ export default function Login({ status, canResetPassword }) {
                         className="mt-1 block w-full"
                         autoComplete="current-password"
                         onChange={(e) => setData('password', e.target.value)}
+                        required
                     />
 
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="mt-4 block">
-                    <label className="flex items-center">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center">
                         <Checkbox
                             name="remember"
                             checked={data.remember}
@@ -74,25 +85,37 @@ export default function Login({ status, canResetPassword }) {
                                 setData('remember', e.target.checked)
                             }
                         />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
+                        <span className="ml-2 text-sm text-gray-600">
+                            Lembrar-me
                         </span>
-                    </label>
-                </div>
+                    </div>
 
-                <div className="mt-4 flex items-center justify-end">
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            className="text-sm text-indigo-600 hover:text-indigo-500"
                         >
-                            Forgot your password?
+                            Esqueceu a senha?
                         </Link>
                     )}
+                </div>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
+                <div>
+                    <PrimaryButton className="w-full justify-center" disabled={processing}>
+                        {processing ? 'Entrando...' : 'Entrar'}
                     </PrimaryButton>
+                </div>
+
+                <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                        Não tem uma conta?{' '}
+                        <Link
+                            href={route('register')}
+                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                            Criar conta
+                        </Link>
+                    </p>
                 </div>
             </form>
         </GuestLayout>
