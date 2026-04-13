@@ -13,8 +13,19 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                // Trocando a fonte principal para Inter
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                // Criando a cor "brand" do seu sistema
+                brand: {
+                    50: '#eef2ff',
+                    100: '#e0e7ff',
+                    500: '#6366f1', // Indigo padrão
+                    600: '#4f46e5', // Hover
+                    900: '#312e81', // Textos escuros
+                }
+            }
         },
     },
 
