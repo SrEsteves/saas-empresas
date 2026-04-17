@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Listeners\CreateTrialSubscription;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,5 +24,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // Registrar listener para criar trial subscription ao registrar usuário
+        Event::listen(
+            Registered::class,
+            CreateTrialSubscription::class,
+        );
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BillingController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\AppointmentController;
@@ -35,6 +37,11 @@ Route::get('/', function () {
 
     //WhatsBot
     Route::post('/webhook/whatsapp/{tenant}', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
+
+    // Stripe Webhook (sem CSRF)
+    Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
+        ->name('stripe.webhook')
+        ->withoutMiddleware(['App\Http\Middleware\VerifyCsrfToken']);
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -92,6 +99,16 @@ Route::middleware('auth')->group(function () {
         
         return back();
     })->name('notifications.read.single');
+
+    // ==================== BILLING ====================
+    Route::get('/billing', [BillingController::class, 'dashboard'])->name('billing.dashboard');
+    Route::get('/billing/plans', [BillingController::class, 'showPlans'])->name('billing.plans');
+    Route::post('/billing/checkout', [BillingController::class, 'startCheckout'])->name('billing.checkout');
+    Route::get('/billing/success', [BillingController::class, 'success'])->name('billing.success');
+    Route::get('/billing/canceled', [BillingController::class, 'canceled'])->name('billing.canceled');
+    Route::post('/billing/upgrade', [BillingController::class, 'upgrade'])->name('billing.upgrade');
+    Route::post('/billing/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
+    Route::get('/billing/invoices', [BillingController::class, 'invoices'])->name('billing.invoices');
     
 });
 
