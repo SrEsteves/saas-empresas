@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Docker-Laravel_Sail-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
 </p>
 
-<h1 align="center">📅 AgendaPro</h1>
+<h1 align="center"> AgendaPro</h1>
 
 <p align="center">
   Plataforma SaaS de agendamento online para negócios de serviços — salões, barbearias, clínicas e muito mais.
@@ -14,7 +14,7 @@
 
 ---
 
-## 📌 Sobre o Projeto
+## Sobre o Projeto
 
 O **AgendaPro** é uma aplicação SaaS multi-tenant voltada para pequenos e médios negócios de prestação de serviços. Permite que cada empresa gerencie seus horários, profissionais e clientes de forma autônoma, com planos de assinatura integrados via Stripe.
 
@@ -22,19 +22,19 @@ O projeto foi desenvolvido como portfólio full stack com foco em boas práticas
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
-- 🔐 **Autenticação completa** com Laravel Breeze (login, registro, verificação de e-mail, reset de senha)
-- 🏢 **Multi-tenant** — cada usuário gerencia sua própria empresa
-- 🧭 **Onboarding guiado** via middleware — bloqueia o acesso ao painel até a empresa estar configurada
-- 💳 **Billing com Stripe** — planos de assinatura, checkout, webhooks e controle de acesso por plano
-- 📋 **Painel administrativo** com layout autenticado responsivo
-- 🌐 **Landing page** institucional com apresentação dos planos
-- ⚡ **SPA-like** com Inertia.js — sem reloads de página, navegação fluida
+- **Autenticação completa** com Laravel Breeze (login, registro, verificação de e-mail, reset de senha)
+- **Multi-tenant** — cada usuário gerencia sua própria empresa
+- **Onboarding guiado** via middleware — bloqueia o acesso ao painel até a empresa estar configurada
+- **Billing com Stripe** — planos de assinatura, checkout, webhooks e controle de acesso por plano
+- **Painel administrativo** com layout autenticado responsivo
+- **Landing page** institucional com apresentação dos planos
+- **SPA-like** com Inertia.js — sem reloads de página, navegação fluida
 
 ---
 
-## 🛠️ Stack Tecnológica
+## Stack Tecnológica
 
 | Camada | Tecnologia |
 |---|---|
@@ -48,7 +48,7 @@ O projeto foi desenvolvido como portfólio full stack com foco em boas práticas
 
 ---
 
-## 🚀 Como rodar localmente
+## Como rodar localmente
 
 ### Pré-requisitos
 
@@ -109,7 +109,7 @@ stripe listen --forward-to localhost/stripe/webhook
 
 ---
 
-## 🗂️ Estrutura de Pastas Relevante
+## Estrutura de Pastas Relevante
 
 ```
 app/
@@ -143,7 +143,7 @@ routes/
 
 ---
 
-## 💳 Integração com Stripe
+## Integração com Stripe
 
 O billing é gerenciado via **Laravel Cashier**. O fluxo de assinatura funciona assim:
 
@@ -164,7 +164,7 @@ O billing é gerenciado via **Laravel Cashier**. O fluxo de assinatura funciona 
 
 ---
 
-## 🧪 Em desenvolvimento
+## Em desenvolvimento
 
 - [x] Módulo de agendamentos (calendário interativo)
 - [x] Notificações por e-mail e WhatsApp
@@ -174,7 +174,7 @@ O billing é gerenciado via **Laravel Cashier**. O fluxo de assinatura funciona 
 
 ---
 
-## 👨‍💻 Autor
+## Autor
 
 Desenvolvido por **Thierry Esteves**
 
@@ -182,6 +182,6 @@ Desenvolvido por **Thierry Esteves**
 
 ---
 
-## 📄 Licença
+## Licença
 
 Este projeto está sob a licença [MIT](LICENSE).
