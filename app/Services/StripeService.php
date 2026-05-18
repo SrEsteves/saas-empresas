@@ -136,7 +136,7 @@ class StripeService
 
             // Atualiza o registro local para refletir o cancelamento agendado
             $subscription->update([
-                'status'              => 'active', // A assinatura continua ATIVA
+                'status'              => 'canceled', // A assinatura vai para cancelada
                 'cancellation_reason' => $reason,
                 'canceled_at'         => now(), // Registra QUANDO o cancelamento foi solicitado
                 'ends_at'             => $stripeSubscription->cancel_at ? now()->setTimestamp($stripeSubscription->cancel_at) : null,

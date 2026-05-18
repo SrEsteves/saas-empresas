@@ -56,6 +56,7 @@ class BillingController extends Controller
             'usage'               => $usage,
             'daysLeftOnTrial'     => $subscription?->daysLeftOnTrial() ?? 0,
             'isOnTrial'           => $subscription?->isOnTrial() ?? false,
+            'statusSubs'              => $subscription?->status ?? false,
         ]);
     }
 

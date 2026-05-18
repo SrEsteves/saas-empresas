@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm, Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
-export default function Dashboard({ currentSubscription, currentPlan, invoices, usage, daysLeftOnTrial, isOnTrial }) {
+export default function Dashboard({ currentSubscription, currentPlan, invoices, usage, daysLeftOnTrial, isOnTrial, statusSubs }) {
     const { post, processing } = useForm();
     const [showCancelModal, setShowCancelModal] = useState(false);
 
@@ -62,10 +62,13 @@ export default function Dashboard({ currentSubscription, currentPlan, invoices, 
     return (
         <AuthenticatedLayout
             header={
-                <div>
-                    <h2 className="font-black text-lg text-gray-900 leading-tight tracking-tight">Faturamento</h2>
-                    <p className="text-xs text-gray-400">Gerencie sua assinatura e histórico de faturas.</p>
+                <div className='flex items-center justify-between'>
+                    <div>
+                        <h2 className="font-black text-lg text-gray-900 leading-tight tracking-tight">Faturamento</h2>
+                        <p className="text-xs text-gray-400">Gerencie sua assinatura e histórico de faturas.</p>
+                    </div>
                 </div>
+                
             }
         >
             <Head title="Faturamento" />
@@ -118,7 +121,7 @@ export default function Dashboard({ currentSubscription, currentPlan, invoices, 
                         {/* Próxima cobrança */}
                         <div>
                             <p className="text-xs text-gray-400 mb-1">
-                                {isOnTrial ? 'Trial expira em' : 'Próxima cobrança'}
+                                {isOnTrial ? 'Teste expira em' : statusSubs === 'canceled'? 'Assinatura ativa até' : 'Próxima cobrança'}
                             </p>
                             {isOnTrial ? (
                                 <p className="text-lg font-bold text-gray-900">

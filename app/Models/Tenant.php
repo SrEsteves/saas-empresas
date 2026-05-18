@@ -107,6 +107,15 @@ class Tenant extends Model
             return $activeSubscription;
         }
 
+        $canceledSubscriptionInPaidPeriod = $this->subscription()
+            ->where('status', 'canceled')
+            ->where('ends_at', '>', now())
+            ->first();
+
+        if ($canceledSubscriptionInPaidPeriod) {
+            return $canceledSubscriptionInPaidPeriod;
+        }
+
         // Se não encontrou, tenta encontrar uma subscription em trial ativa
         return $this->subscription()
             ->where('status', 'trial')

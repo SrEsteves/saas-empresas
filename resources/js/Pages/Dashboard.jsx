@@ -2,6 +2,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import TextInput from '@/Components/TextInput';
+import AiReportModal from '@/Pages/Billing/AiReportModal';
+
 import { 
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
     BarChart, Bar, PieChart, Pie, Cell, Legend 
@@ -67,10 +69,14 @@ export default function Dashboard({ stats }) {
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         </button>
                     </form>
+                    <AiReportModal filters={dates} />
                 </div>
             }
         >
-            <Head title="Dashboard" />
+            <Head>
+                <title>Dashboard</title>
+                <link rel="icon" type="image/png" href="/favicon.ico" />
+            </Head>
 
             <div className="py-6 px-4 sm:px-6 lg:px-8 space-y-6">
 
